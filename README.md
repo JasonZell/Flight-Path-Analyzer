@@ -7,4 +7,3 @@ The purpose of sanitizer program is solely for creating XML file from raw OpenFl
 
 Sample screenshot:
 
-![Screenshot](https://raw.githubusercontent.com/JasonZell/Flight-Path-Analyzer/master/sampleScreen/sample.png)
