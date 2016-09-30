@@ -5,3 +5,6 @@ The airport and route data comes from OpenFlights at http://openflights.org/data
 
 The purpose of sanitizer program is solely for creating XML file from raw OpenFlight data files.
 
+Sample screenshot:
+
+![Screenshot](https://raw.githubusercontent.com/JasonZell/Flight-Path-Analyzer/master/sampleScreen/sample.png)
