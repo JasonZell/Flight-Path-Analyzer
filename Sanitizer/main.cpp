@@ -225,8 +225,10 @@ void construct_XML(vector<AIRPORTDATA>& portdata, vector<AIRLINEDATA>& airlineda
 
     writer.writeStartElement("AirportSize");
     writer.writeTextElement("PortSize",QString::number(portsize));
-    writer.writeEndElement();
+    writer.writeEndElement(); // </AriportSize>
 
+    //writing out all airport names
+    //include IATA, use ICAO if IATA does not exist
     writer.writeStartElement("AirportNames");
     for(int i = 0; i < portsize;++i)
     {
