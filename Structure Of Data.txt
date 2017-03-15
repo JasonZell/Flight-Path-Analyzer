@@ -61,6 +61,60 @@ routes.dat
 	*for Data.xml, only data from airline to destination airport ID is used.
 
 	
+Construct XML
+
+	Following data are created into XML in sequence:
+	
+	<AirportSize> - <PortSize> total number of airports
+	<AirportNames> - all airport names in IATA (or ICAO if IATA does not exist), city and country names are atttributes. optinal attribute of PortICAO are give if it has ICAO		
+				except the airports that don't have ICAO which falls back to ICAO.
+				
+				example: <PortName CityName="Goroka" CountryName="Papua New Guinea" PortICAO="AYGA">GKA</PortName>
+				
+	<AirlineDatas> - list all airline datas, such as its IATA (or ICAO) code, airline country origin and its full name.
+	
+				example: <AirlineCode AirlineName="Airbus Industrie" AirlineCountry="France">AP</AirlineCode>
+	
+	
+	<RouteDatas> -- data for the routes (edges)   
+		**** Routes data only use Port IATA CODE !!! no point using port  ICAO so it is omitted in XML.
+		**** Routes also only uses 2 letter IATA Airline Codes.
+	
+				examples:
+				
+					<RouteDatas>
+							<Airport>
+								<Port_IATA>GKA</Port_IATA>
+								<Routes>
+									<Edge>
+										<Des_Port_IATA>HGU</Des_Port_IATA>
+										<Des_Airline_Code>CG</Des_Airline_Code>
+										<Distance>77.3508</Distance>
+									</Edge>
+									<Edge>
+										<Des_Port_IATA>LAE</Des_Port_IATA>
+										<Des_Airline_Code>CG</Des_Airline_Code>
+										<Distance>97.6437</Distance>
+									</Edge>
+									<Edge>
+										<Des_Port_IATA>MAG</Des_Port_IATA>
+										<Des_Airline_Code>CG</Des_Airline_Code>
+										<Distance>66.3036</Distance>
+									</Edge>
+									<Edge>
+										<Des_Port_IATA>POM</Des_Port_IATA>
+										<Des_Airline_Code>CG</Des_Airline_Code>
+										<Distance>263.836</Distance>
+									</Edge>
+									<Edge>
+										<Des_Port_IATA>POM</Des_Port_IATA>
+										<Des_Airline_Code>PX</Des_Airline_Code>
+										<Distance>263.836</Distance>
+									</Edge>
+								</Routes>
+							</Airport>
+							
+							.....etc
 	
 Discussion:
 
@@ -69,8 +123,9 @@ Discussion:
 		use IATA instead, fallback to ICAO if IATA does not exist.
 	2. some airport doesn't have either IATA or ICAO, disregard it since it is not public airport/airstrip.
 		which mean it won't show up in routes.dat
-		ex: 9401,"Angguruk airstrip","Angguruk","Indonesia","",\N,-4.2001,139.4329,4200,9,"U","Asia/Jayapura"
+		ex: 9401,"Angguruk airstrip","Angguruk","Indonesia","",\N,-4.2001,139.4329,4200,9,"U","Asia/Jayapura"	
 	3. only airport with either IATA or ICAO are parsed into data.xml.	
-
+	4. route data only uses IATA for airports identifier. 
+	5. user are allowed to enter ICAO Airport for search, but it would be easier that we find IATA from ICAO to begin the search.
 	
 	

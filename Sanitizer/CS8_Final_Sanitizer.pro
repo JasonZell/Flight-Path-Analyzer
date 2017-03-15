@@ -7,5 +7,5 @@ SOURCES += main.cpp
 QT += core
 QT += xml
 include(deployment.pri)
-qtcAddDeployment()
+#qtcAddDeployment()
 

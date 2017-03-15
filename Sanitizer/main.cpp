@@ -54,6 +54,7 @@ struct AIRLINEDATA
     QString OpenFlightAirlineID;
     QString AirlineName;
     QString AirlineCode[2]; //first element is IATA for airline (2 letter code), then ICAO(3 letter code);
+    QString AirlineCountry;
 };
 
 struct ROUTES
@@ -71,6 +72,7 @@ void airline_parse(vector<AIRLINEDATA>&);
 void route_parse(vector<ROUTES>&);
 void format();
 QString sanitize(string str);
+void construct_XML_V2(vector<AIRPORTDATA>& portdata, vector<AIRLINEDATA>& airlinedata,vector<ROUTES> &routedata);
 void construct_XML(vector<AIRPORTDATA>& portdata, vector<AIRLINEDATA>& airlinedata,vector<ROUTES> &routedata);
 QString distances(QString& src_lat, QString& src_long, QString &des_lat, QString& des_long);
 
@@ -87,7 +89,9 @@ int main()
     airport_parse(port_data);
     airline_parse(airline_data);
     route_parse(route_data);
-    construct_XML(port_data,airline_data,route_data);
+    //construct_XML(port_data,airline_data,route_data);
+    construct_XML_V2(port_data,airline_data,route_data);
+
 
     cout<<"DONE!\n";
     cout<<"TIME:"<<(float)(clock()-clocks)/CLOCKS_PER_SEC<<endl;
@@ -155,8 +159,9 @@ void airline_parse(vector<AIRLINEDATA>& data)
         arr[count] = sanitize(temp.substr(pos2));
         tempdata.OpenFlightAirlineID = arr[0];
         tempdata.AirlineName = arr[1];
-        tempdata.AirlineCode[0] = arr[3];
-        tempdata.AirlineCode[1] = arr[4];
+        tempdata.AirlineCode[0] = arr[3]; // 2 digit airline IATA
+        tempdata.AirlineCode[1] = arr[4]; // 3 digit airline ICAO
+        tempdata.AirlineCountry = arr[6]; //NEW
         data.push_back(tempdata);
         pos2=0;
         count = 0;
@@ -209,12 +214,152 @@ QString sanitize(string str)
     return (qstr = QString::fromLatin1(str.data(), str.size()));
 }
 
+void construct_XML_V2(vector<AIRPORTDATA>& portdata, vector<AIRLINEDATA>& airlinedata,vector<ROUTES> &routedata)
+{
+    int portsize = portdata.size(),routesize = routedata.size(), linesize = airlinedata.size();
+    //QString portcode,
+    QString airportID,qtemp;
+    QString filename = "dataTestV3.xml";
+    QFile file(filename);
+    file.open(QIODevice::WriteOnly);
+    QXmlStreamWriter writer(&file);
+    bool found = false,hasroute= false;
+
+    writer.setAutoFormatting(true);
+    writer.writeStartDocument("1.0"); // XML version 1.0
+
+    writer.writeStartElement("Document");
+
+    //write the number of airports in data
+    writer.writeStartElement("AirportSize");
+    writer.writeTextElement("PortSize",QString::number(portsize));
+    writer.writeEndElement(); // </AriportSize>
+
+    //writing out all airport names
+    //include IATA, use ICAO if IATA does not exist
+    writer.writeStartElement("AirportNames");
+    for(int i = 0; i < portsize;++i)
+    {
+        if(portdata[i].AirportCode[0]!="\\N")
+        {
+            writer.writeStartElement("PortName");
+            writer.writeAttribute("CityName",portdata[i].CityName);
+            writer.writeAttribute("CountryName",portdata[i].CountryName);
+            if(portdata[i].AirportCode[1] !="\\N") // write the ICAO name for this IATA
+                writer.writeAttribute("PortICAO",portdata[i].AirportCode[1]);
+            writer.writeCharacters(portdata[i].AirportCode[0]);
+            writer.writeEndElement();
+            //writer.writeTextElement("PortName",portdata[i].AirportCode[0]);
+        }
+        else
+        {
+           // std::cout<<"USE ICAO FOR AIRPORT NAME...\n";
+            //writer.writeTextElement("PortName",portdata[i].AirportCode[1]);
+            writer.writeStartElement("PortName");
+            writer.writeAttribute("CityName",portdata[i].CityName);
+            writer.writeAttribute("CountryName",portdata[i].CountryName);
+            writer.writeCharacters(portdata[i].AirportCode[1]);
+            writer.writeEndElement();
+        }
+    }
+    writer.writeEndElement(); // </AirportNames>
+
+    //write the airline and its full name, attribute would be its country
+    writer.writeStartElement("AirlineDatas");
+    for(int i = 0; i < linesize; ++i)
+    {
+        if(airlinedata[i].AirlineCode[0] != "\\N")
+        {
+            writer.writeStartElement("AirlineCode");
+            writer.writeAttribute("AirlineName",airlinedata[i].AirlineName);
+            writer.writeAttribute("AirlineCountry",airlinedata[i].AirlineCountry);
+            writer.writeCharacters(airlinedata[i].AirlineCode[0]);
+            writer.writeEndElement();
+
+        }
+        else
+        {
+            writer.writeStartElement("AirlineCode");
+            writer.writeAttribute("AirlineName",airlinedata[i].AirlineName);
+            writer.writeAttribute("AirlineCountry",airlinedata[i].AirlineCountry);
+            writer.writeCharacters(airlinedata[i].AirlineCode[1]);
+            writer.writeEndElement();
+        }
+    }
+    writer.writeEndElement(); // </AirlineDatas>
+
+
+    //write out edges from route data
+    writer.writeStartElement("RouteDatas");
+    for(int i = 0; i < portsize; ++i)
+    {
+        writer.writeStartElement("Airport");
+        //writer.writeTextElement("AirportID",portdata[i].OpenFlightAirportID); //inconsistent, hence not used.
+        writer.writeTextElement("Port_IATA",portdata[i].AirportCode[0]);
+        //writer.writeTextElement("Port_ICAO",portdata[i].AirportCode[1]); // no point for this since route only uses airport IATA codes.
+        //writer.writeTextElement("City",portdata[i].CityName);
+        //writer.writeTextElement("Country",portdata[i].CountryName);
+
+        //BEGIN EDGE WRITING
+
+        //portcode =  (portdata[i].AirportCode[0] == "\\N" ? portdata[i].AirportCode[1] : portdata[i].AirportCode[0]);
+        airportID = portdata[i].OpenFlightAirportID;
+        writer.writeStartElement("Routes");
+
+        for(int j = 0; j < routesize; ++j)
+        {
+            if(airportID == routedata[j].SourceOpenFlightPortID) // if matches with airport code and source airport code
+            {
+                for(int m = 0; m < portsize;++m)
+                {
+                    if(portdata[m].OpenFlightAirportID == routedata[j].DestOpenFlightPortID) // if dest. airport actually exists
+                    {
+                        writer.writeStartElement("Edge");
+                        writer.writeTextElement("Des_Port_IATA",routedata[j].DestAirportCode); //destination port
+                        writer.writeTextElement("Des_Airline_Code",routedata[j].AirCode); //airline IATA or ICAO
+//                        qtemp = routedata[j].OpenFlightAirlineID;
+//                        for(int k = 0; k < linesize;++k)
+//                        {
+//                            if(qtemp == airlinedata[k].OpenFlightAirlineID)
+//                            {
+//                                writer.writeTextElement("Carrier_AirlineName",airlinedata[k].AirlineName);
+//                                found = true;
+//                                break;
+//                            }
+//                        }
+//                        if(qtemp =="\\N") //NEW, in case no airline names for that route;
+//                            writer.writeTextElement("Carrier_AirlineName","unknown");
+
+                        writer.writeTextElement("Distance",
+                                                distances(portdata[i].Latitude,portdata[i].Longitude,
+
+                                                          portdata[m].Latitude,portdata[m].Longitude));
+                        writer.writeEndElement(); // </Edge>
+
+                    }
+                }
+            }
+        }
+        writer.writeEndElement();//</Routes>
+        //END EDGE WRITING
+        writer.writeEndElement();//</Airport>
+    }
+    writer.writeEndElement();//</Datas>
+    writer.writeEndElement();//</Document>
+
+    writer.writeEndDocument();
+
+    file.close();
+    std::cout<<"DONE, FILE CLOSED\n";
+
+}
+
 void construct_XML(vector<AIRPORTDATA>& portdata, vector<AIRLINEDATA>& airlinedata,vector<ROUTES> &routedata)
 {
     int portsize = portdata.size(),routesize = routedata.size(), linesize = airlinedata.size();
     //QString portcode,
     QString airportID,qtemp;
-    QString filename = "data.xml";
+    QString filename = "dataTest.xml";
     QFile file(filename);
     file.open(QIODevice::WriteOnly);
     QXmlStreamWriter writer(&file);
@@ -237,7 +382,10 @@ void construct_XML(vector<AIRPORTDATA>& portdata, vector<AIRLINEDATA>& airlineda
         if(portdata[i].AirportCode[0]!="\\N")
             writer.writeTextElement("PortName",portdata[i].AirportCode[0]);
         else
+        {
+           // std::cout<<"USE ICAO FOR AIRPORT NAME...\n";
             writer.writeTextElement("PortName",portdata[i].AirportCode[1]);
+        }
     }
     writer.writeEndElement(); // </AirportNames>
 
@@ -303,6 +451,10 @@ void construct_XML(vector<AIRPORTDATA>& portdata, vector<AIRLINEDATA>& airlineda
     writer.writeEndElement();//</Document>
 
     writer.writeEndDocument();
+
+    file.close();
+    std::cout<<"DONE, FILE CLOSED\n";
+
 }
 
 QString distances(QString& src_lat, QString& src_long, QString &des_lat, QString& des_long)

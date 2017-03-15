@@ -2,6 +2,7 @@
 #define ROUTEDATA_H
 
 #include <vector>
+#include <string>
 class RouteData
 {
     public:
