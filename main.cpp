@@ -72,6 +72,7 @@ int main()
     //              3.) moved clocks = clock() to after obtaining valid user input for obvious reasons
 
 
+    const double UNDEFINED = -2;
     QXmlStreamReader reader;
     QFile file;
     string *portNameHolder,origin,dest;

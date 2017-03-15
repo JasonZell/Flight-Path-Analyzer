@@ -5,13 +5,26 @@
 #include <string>
 class RouteData
 {
+    const double UNDEFINED = -2;
+
     public:
         RouteData();
+        ~RouteData();
+        RouteData(const RouteData&);
+        RouteData& operator=(const RouteData&);
+
+        void setDist(double);
+        double& getDist();
+
+        void addAirlineCode(std::string s);
+        std::vector<std::__cxx11::string>*& getAirlineList();
 
     private:
 
         double distance;
-        std::vector<string> airlineList;
+        std::vector<std::string> *airlineList; //2 letter airline IATA code
+
+        void swap(RouteData&) throw();
 };
 
 #endif // ROUTEDATA_H
