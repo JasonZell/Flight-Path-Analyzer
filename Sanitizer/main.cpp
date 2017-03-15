@@ -41,6 +41,7 @@ using namespace std;
 struct AIRPORTDATA
 {
     QString OpenFlightAirportID;
+    QString AirportName;
     QString CityName;
     QString CountryName;
     QString AirportCode[2]; // first element is IATA for airport(3 letter code), then ICAO (4 letter code);
@@ -116,6 +117,7 @@ void airport_parse(vector<AIRPORTDATA>& data)
         if(!(arr[4] == "\\N" && arr[5] == "\\N")) // if neither airport code is available, disregard it
         {
             tempdata.OpenFlightAirportID = arr[0];
+            tempdata.AirportName = arr[1];
             tempdata.CityName = arr[2];
             tempdata.CountryName = arr[3];
             tempdata.AirportCode[0] = arr[4];
@@ -181,7 +183,7 @@ void route_parse(vector<ROUTES>&data)
             pos2 = pos+1;
         }
         arr[count] = sanitize(temp.substr(pos2));
-        tempdata.AirCode = arr[0];
+        tempdata.AirCode = arr[0]; //2 letter or 3-letter ICAO code for airline.
         tempdata.OpenFlightAirlineID = arr[1];
         tempdata.SourceAirportCode = arr[2];
         tempdata.SourceOpenFlightPortID = arr[3];
@@ -198,7 +200,7 @@ QString sanitize(string str)
 {
     QString qstr;
 
-    if(str == "\"\"")
+    if(str == "\"\"") // if we have "" as the token, change it to \N to indicate NULL.
         str = "\\N";
     else if(str !="\"\"") // not ""
         if(str[0]== '\"') // if starts with ", means it also ends with "
