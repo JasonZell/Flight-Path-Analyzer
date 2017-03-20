@@ -35,4 +35,9 @@ private:
 
 };
 
+inline bool operator<(const AirportNode &n1, const AirportNode &n2)
+{
+    return n1.getPortIATA() < n2.getPortIATA();
+}
+
 #endif // AIRPORTNODE_H

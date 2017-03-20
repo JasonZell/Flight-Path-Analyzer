@@ -18,8 +18,10 @@ TEMPLATE = app
 
 SOURCES += main.cpp \
     AirportNode.cpp \
-    RouteData.cpp
+    RouteData.cpp \
+    xmlparser.cpp
 
 HEADERS += \
     AirportNode.h \
-    RouteData.h
+    RouteData.h \
+    xmlparser.h

@@ -1,0 +1,70 @@
+enum QXmlStreamReader::Error
+
+This enum specifies different error cases
+Constant									  Value	Description
+QXmlStreamReader::NoError						0	No error has occurred.
+QXmlStreamReader::CustomError					2	A custom error has been raised with raiseError()
+QXmlStreamReader::NotWellFormedError			3	The parser internally raised an error due to the read XML not being well-formed.
+QXmlStreamReader::PrematureEndOfDocumentError	4	The input stream ended before a well-formed XML document was parsed. Recovery from this error is possible if more XML arrives in the stream, either by calling addData() or by waiting for it to arrive on the device().
+QXmlStreamReader::UnexpectedElementError		1	The parser encountered an element that was different to those it expected.
+
+
+enum QXmlStreamReader::ReadElementTextBehaviour
+
+This enum specifies the different behaviours of readElementText().
+Constant									  Value	Description
+QXmlStreamReader::ErrorOnUnexpectedElement		0	Raise an UnexpectedElementError and return what was read so far when a child element is encountered.
+QXmlStreamReader::IncludeChildElements			1	Recursively include the text from child elements.
+QXmlStreamReader::SkipChildElements				2	Skip child elements.
+
+
+enum QXmlStreamReader::TokenType
+
+This enum specifies the type of token the reader just read.
+Constant							Value	Description
+QXmlStreamReader::NoToken					0	The reader has not yet read anything.
+QXmlStreamReader::Invalid					1	An error has occurred, reported in error() and errorString().
+QXmlStreamReader::StartDocument				2	The reader reports the XML version number in documentVersion(), and the encoding as specified in the XML document in documentEncoding(). If the document is declared standalone, isStandaloneDocument() returns true; otherwise it returns false.
+QXmlStreamReader::EndDocument				3	The reader reports the end of the document.
+QXmlStreamReader::StartElement				4	The reader reports the start of an element with namespaceUri() and name(). Empty elements are also reported as StartElement, followed directly by EndElement. The convenience function readElementText() can be called to concatenate all content until the corresponding EndElement. Attributes are reported in attributes(), namespace declarations in namespaceDeclarations().
+QXmlStreamReader::EndElement				5	The reader reports the end of an element with namespaceUri() and name().
+QXmlStreamReader::Characters				6	The reader reports characters in text(). If the characters are all white-space, isWhitespace() returns true. If the characters stem from a CDATA section, isCDATA() returns true.
+QXmlStreamReader::Comment					7	The reader reports a comment in text().
+QXmlStreamReader::DTD						8	The reader reports a DTD in text(), notation declarations in notationDeclarations(), and entity declarations in entityDeclarations(). Details of the DTD declaration are reported in in dtdName(), dtdPublicId(), and dtdSystemId().
+QXmlStreamReader::EntityReference			9	The reader reports an entity reference that could not be resolved. The name of the reference is reported in name(), the replacement text in text().
+QXmlStreamReader::ProcessingInstruction		10	The reader reports a processing instruction in processingInstructionTarget() and processingInstructionData().
+
+
+bool QXmlStreamReader::atEnd() const			Returns true if the reader has read until the end of the XML document, or if an error() has occurred and reading has been aborted. Otherwise, it returns false.
+void QXmlStreamReader::clear() 					Removes any device() or data from the reader and resets its internal state to the initial state.
+Error QXmlStreamReader::error() const			Returns the type of the current error, or NoError if no error occurred.
+bool QXmlStreamReader::hasError() const			Returns true if an error has occurred, otherwise false.
+bool QXmlStreamReader::isCharacters() const		Returns true if tokenType() equals Characters; otherwise returns false.
+bool QXmlStreamReader::isComment() const		Returns true if tokenType() equals Comment; otherwise returns false.
+bool QXmlStreamReader::isEndDocument() const    Returns true if tokenType() equals EndDocument; otherwise returns false.
+bool QXmlStreamReader::isEndElement() const		Returns true if tokenType() equals EndElement; otherwise returns false.
+bool QXmlStreamReader::isStartDocument() const	Returns true if tokenType() equals StartDocument; otherwise returns false.
+bool QXmlStreamReader::isStartElement() const	Returns true if tokenType() equals StartElement; otherwise returns false.
+bool QXmlStreamReader::isWhitespace() const		Returns true if the reader reports characters that only consist of white-space; otherwise returns false.
+QStringRef QXmlStreamReader::name() const		Returns the local name of a StartElement, EndElement, or an EntityReference.
+QStringRef QXmlStreamReader::qualifiedName() const	Returns the qualified name of a StartElement or EndElement;
+QXmlStreamAttributes QXmlStreamReader::attributes() const		Returns the attributes of a StartElement.
+
+QString QXmlStreamReader::readElementText(ReadElementTextBehaviour behaviour = ErrorOnUnexpectedElement)
+	Convenience function to be called in case a StartElement was read. Reads until the corresponding EndElement and returns all text in-between. 
+	In case of no error, the current token (see tokenType()) after having called this function is EndElement.
+	
+
+TokenType QXmlStreamReader::readNext()			Reads the next token and returns its type. With one exception, once an error() is reported by readNext(), further reading of the XML stream is not possible. 
+												Then atEnd() returns true, hasError() returns true, and this function returns QXmlStreamReader::Invalid.
+											
+bool QXmlStreamReader::readNextStartElement()	Reads until the next start element within the current element. Returns true when a start element was reached. 
+												When the end element was reached, or when an error occurred,false is returned.		
+												The current element is the element matching the most recently parsed start element of which a matching end element has not yet been reached. 
+												When the parser has reached the end element, the current element becomes the parent element.
+void QXmlStreamReader::skipCurrentElement()		Reads until the end of the current element, skipping any child nodes. This function is useful for skipping unknown elements.
+												The current element is the element matching the most recently parsed start element of which a matching end element has not yet been reached. 
+												When the parser has reached the end element, the current element becomes the parent element.												
+
+QStringRef QXmlStreamReader::text() const		Returns the text of Characters, Comment, DTD, or EntityReference.
+QString QXmlStreamReader::tokenString() const 	Returns the reader's current token as string.
