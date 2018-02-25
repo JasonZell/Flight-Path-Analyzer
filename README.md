@@ -1,4 +1,8 @@
 # Flight-Path-Analyzer
+
+[![Build Status](https://travis-ci.org/JasonZell/Flight-Path-Analyzer.svg?branch=master)](https://travis-ci.org/JasonZell/Flight-Path-Analyzer)
+
+
 The purpose of this program is to find the shortest path between two airports using IATA or ICAO airport codes. 
 
 The airport and route data comes from OpenFlights at http://openflights.org/data.html
