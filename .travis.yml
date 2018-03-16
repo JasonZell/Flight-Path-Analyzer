@@ -2,3 +2,12 @@ language: cpp
 compiler:
   - clang
   - gcc
+
+install:
+  - sudo apt-get update
+  - sudo apt-get install libqt4-dev qt4-qmake
+
+script:
+- qmake -project
+- qmake hello.pro
+- make
