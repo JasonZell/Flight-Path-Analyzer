@@ -6,8 +6,8 @@ XMLParser::XMLParser()
 }
 void XMLParser::loadXMLFile()
 {
-    file.setFileName("dataV3.xml");
-    xmlReader.setDevice(&file);
+   xmlFile.setFileName("dataV3.xml");
+   xmlReader.setDevice(&xmlFile);
 
 }
 
