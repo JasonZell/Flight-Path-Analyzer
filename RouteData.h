@@ -17,7 +17,7 @@ class RouteData
         double& getDist();
 
         void addAirlineCode(std::string s);
-        std::vector<std::__cxx11::string>*& getAirlineList();
+        std::vector<std::string>*& getAirlineList();
 
     private:
 

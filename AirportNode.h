@@ -18,10 +18,10 @@ public:
     void setPortCity(string&);
     void setPortCountry(string&);
 
-    string& getPortIATA();
-    string& getPortICAO();
-    string& getPortCity();
-    string& getPortCountry();
+    string& getPortIATA() const;
+    string& getPortICAO() const;
+    string& getPortCity() const;
+    string& getPortCountry() const;
 
 
 private:

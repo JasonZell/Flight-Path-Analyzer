@@ -72,22 +72,22 @@ void AirportNode::setPortCountry(string& s)
     this->portCountry = s;
 }
 
-string& AirportNode::getPortIATA()
+string& AirportNode::getPortIATA() const
 {
-    return this->portIATA;
+    return portIATA;
 }
 
-string& AirportNode::getPortICAO()
+string& AirportNode::getPortICAO() const
 {
     return this->portICAO;
 }
 
-string& AirportNode::getPortCity()
+string& AirportNode::getPortCity() const
 {
     return this->portCity;
 }
 
-string& AirportNode::getPortCountry()
+string& AirportNode::getPortCountry() const
 {
     return this->portCountry;
 }
