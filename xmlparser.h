@@ -14,7 +14,7 @@ class XMLParser
         explicit XMLParser();
 
 
-        const double INFINITY = std::numeric_limits<double>::max();
+        const double INFINITYNUM = std::numeric_limits<double>::max();
         const double UNDEFINED = -2;
 
     private:
